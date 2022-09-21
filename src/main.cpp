@@ -1,52 +1,45 @@
-
 #include <Arduino.h>
+#include <Wire.h>
+#include <MD_Parola.h>
+#include <MD_MAX72xx.h>
+#include <SPI.h>
+
+#include "LiquidCrystal_I2C.h"
+#include "matrix_display.h"
+
 #include "led.h"
 #include "tombol.h"
+#include "potensio.h"
+#include "lcd.h"
+#include "speaker.h"
+#include <Stepper.h>
 
-#define PIN_A_SENSOR1 A0
-#define PIN_A_SENSOR2 A1
-#define PIN_A_SENSOR3 A2
-#define PIN_A_SENSOR4 A3
-#define PIN_A_SENSOR5 A4
-#define PIN_A_SENSOR6 A5
-#define PIN_A_SENSOR7 A6
-#define PIN_A_SENSOR8 A7
+#define PIN_EN 44
+#define PIN_IN1 45
+#define PIN_IN2 46
 
-/// map one numerical span to another with floating point values
-double mapFloat (double x, double in_min, double in_max, double out_min, double out_max) {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+void setup()
+{
+    pinMode(PIN_EN, OUTPUT);
+    pinMode(PIN_IN1, OUTPUT);
+    pinMode(PIN_IN2, OUTPUT);
 }
-uint16_t bacaSensor(uint8_t no_sensor){
-  // konversi data sinyal analog ke digital, simpan pada variabel
-  uint16_t nilai_sensor = analogRead(no_sensor);
-  // tampilkan nilai sensor 
-  Serial.println("Sensor anda [digital raw] pada pin "+String(no_sensor)+":"+String(nilai_sensor));
-}
-void bacaSensor(){
-  for (int i = 54; i <= 61; i++)
-  {
-    uint16_t tmp = analogRead(i);
-    Serial.println("Value "+String(i)+" :["+tmp+"], Voltage:["+String(mapFloat(tmp,0,1023,0,5))+" volt]");
-  }
-}
+void loop()
+{
+    int speed = bacaSensor(A0);
+    speed = map(speed, 0, 1023, 0, 255);
+    digitalWrite(PIN_EN, HIGH);
+    // digitalWrite(PIN_IN1, HIGH);
+    analogWrite(PIN_IN1, speed);
+    digitalWrite(PIN_IN2, LOW);
+    delay(2000);
 
-void setup() {
-  Serial.begin(115200);
-  Serial.println("aplikasi dimulai");
+    digitalWrite(PIN_EN, LOW);
+    delay(1000);
 
-}
-void loop() {
- 
-  Serial.println("===============================================");
-  bacaSensor();
-  // bacaSensor(A0);
-  // bacaSensor(A1);
-  // bacaSensor(A2);
-  // bacaSensor(A3);
-  // bacaSensor(A4);
-  // bacaSensor(A5);
-  // bacaSensor(A6);
-  // bacaSensor(A7);
-  Serial.println("===============================================");
-  delay(500);
+    digitalWrite(PIN_EN, HIGH);
+    digitalWrite(PIN_IN1, LOW);
+    // digitalWrite(PIN_IN2, HIGH);
+    analogWrite(PIN_IN2, speed);
+    delay(2000);
 }
